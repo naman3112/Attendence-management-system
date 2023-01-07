@@ -1,4 +1,13 @@
 import { Instance, SnapshotOut, types } from "mobx-state-tree"
+import { save, loadString , load} from "../utils/storage"
+
+const initializeFromAsyncStorage = async (obj)=> {
+  const result = await AsyncStorage.getItem('csvData')
+  if (result !== null) {
+     obj = JSON.parse(result)
+     return obj
+  }
+}
 
 export const AuthenticationStoreModel = types
   .model("AuthenticationStore")
@@ -6,10 +15,12 @@ export const AuthenticationStoreModel = types
     authToken: types.maybe(types.string),
     authEmail: "",
     authPassword: "",
+   // csvData: types.array(CSVdata)
+    csvData: types.maybe(types.string)
   })
   .views((store) => ({
     get isAuthenticated() {
-      return !!store.authToken
+      return !!store.csvData
     },
     get validationErrors() {
       return {
@@ -29,6 +40,23 @@ export const AuthenticationStoreModel = types
     },
   }))
   .actions((store) => ({
+     setCsvData (value){
+      store.csvData = JSON.stringify(value);
+      save('csvData', value);
+      console.log("saved called ");
+
+    },
+    
+    getCsvData(){
+ load('csvData').then((val)=>{
+  console.log("here the hell")
+    console.log("answer is ", val);
+    this.setCsvData(val)
+ }).catch((e)=>{
+console.log("error is ", e)
+ })
+    console.log("store.csvdata is ----- +++++++", store.csvData);
+    },
     setAuthToken(value?: string) {
       store.authToken = value
     },
@@ -44,16 +72,21 @@ export const AuthenticationStoreModel = types
       store.authPassword = ""
     },
   }))
-  .preProcessSnapshot((snapshot) => {
-    // remove sensitive data from snapshot to avoid secrets
-    // being stored in AsyncStorage in plain text if backing up store
-    const { authToken, authPassword, ...rest } = snapshot // eslint-disable-line @typescript-eslint/no-unused-vars
+//   .preProcessSnapshot((snapshot) => {
+//     console.log("here i am saving values as snapshots ", snapshot)
+//     // remove sensitive data from snapshot to avoid secrets
+//     // being stored in AsyncStorage in plain text if backing up store
+//     if(!snapshot?.csvData){
+//       const { authToken, authPassword, ...rest } = snapshot
+//       return rest
+//     }
+//     const { authToken, authPassword,csvData, ...rest } = snapshot // eslint-disable-line @typescript-eslint/no-unused-vars
+// console.log("csvData----", csvData)
+//     // see the following for strategies to consider storing secrets on device
+//     // https://reactnative.dev/docs/security#storing-sensitive-info
 
-    // see the following for strategies to consider storing secrets on device
-    // https://reactnative.dev/docs/security#storing-sensitive-info
-
-    return rest
-  })
+//     return rest
+//   })
 
 export interface AuthenticationStore extends Instance<typeof AuthenticationStoreModel> {}
 export interface AuthenticationStoreSnapshot extends SnapshotOut<typeof AuthenticationStoreModel> {}

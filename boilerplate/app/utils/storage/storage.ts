@@ -9,6 +9,7 @@ export async function loadString(key: string): Promise<string | null> {
   try {
     return await AsyncStorage.getItem(key)
   } catch {
+    console.log("fuck you ")
     // not sure why this would fail... even reading the RN docs I'm unclear
     return null
   }

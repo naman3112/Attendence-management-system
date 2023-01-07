@@ -15,9 +15,9 @@ import { useSafeAreaInsetsStyle } from "../utils/useSafeAreaInsetsStyle"
 const welcomeLogo = require("../../assets/images/logo.png")
 const welcomeFace = require("../../assets/images/welcome-face.png")
 
-interface WelcomeScreenProps extends AppStackScreenProps<"Welcome"> {} // @demo remove-current-line
+interface HomeScreenProps extends AppStackScreenProps<"Welcome"> {} // @demo remove-current-line
 
-export const WelcomeScreen: FC<WelcomeScreenProps> = observer(function WelcomeScreen(
+export const HomeScreen: FC<HomeScreenProps> = observer(function HomeScreen(
   _props, // @demo remove-current-line
 ) {
   // @demo remove-block-start
@@ -29,7 +29,7 @@ useEffect(()=>{
 console.log("csv data is -----", csvData)
 },[])
   function goNext() {
-    navigation.navigate("Home")
+    navigation.navigate("HomeScreen")
   }
 
   useHeader({
@@ -43,7 +43,6 @@ console.log("csv data is -----", csvData)
   return (
     <View style={$container}>
       <View style={$topContainer}>
-        <Image style={$welcomeLogo} source={welcomeLogo} resizeMode="contain" />
         <Text
           testID="welcome-heading"
           style={$welcomeHeading}
@@ -51,7 +50,6 @@ console.log("csv data is -----", csvData)
           preset="heading"
         />
         <Text tx="welcomeScreen.exciting" preset="subheading" />
-        <Image style={$welcomeFace} source={welcomeFace} resizeMode="contain" />
       </View>
 
       <View style={[$bottomContainer, $bottomContainerInsets]}>
