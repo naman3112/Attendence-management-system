@@ -102,7 +102,7 @@ console.log("i am here shitty ---", csvData)
       setAuthEmail("")
     
     }
-  }, [])
+  }, [csvData])
 
   return (
     <Screen

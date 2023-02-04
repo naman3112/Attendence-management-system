@@ -1,5 +1,6 @@
 import { Instance, SnapshotOut, types } from "mobx-state-tree"
-import { save, loadString , load} from "../utils/storage"
+import { AsyncStorage } from "react-native"
+import { save, loadString , load, saveString} from "../utils/storage"
 
 const initializeFromAsyncStorage = async (obj)=> {
   const result = await AsyncStorage.getItem('csvData')
@@ -7,6 +8,9 @@ const initializeFromAsyncStorage = async (obj)=> {
      obj = JSON.parse(result)
      return obj
   }
+}
+export interface CsvData {
+any;
 }
 
 export const AuthenticationStoreModel = types
@@ -16,11 +20,12 @@ export const AuthenticationStoreModel = types
     authEmail: "",
     authPassword: "",
    // csvData: types.array(CSVdata)
-    csvData: types.maybe(types.string)
+    
   })
   .views((store) => ({
     get isAuthenticated() {
-      return !!store.csvData
+      console.log("store.csv data is -----", store.csvData)
+      return store?.csvData && store?.csvData.length>0
     },
     get validationErrors() {
       return {
@@ -40,22 +45,24 @@ export const AuthenticationStoreModel = types
     },
   }))
   .actions((store) => ({
-     setCsvData (value){
-      store.csvData = JSON.stringify(value);
-      save('csvData', value);
-      console.log("saved called ");
-
+     setCsvData (value, from=false){
+      
+      store.csvData = value;
+      console.log("csvdata string tupe", value, value.length)
+      if(!from)
+      saveString('csvData', JSON.stringify(value));
     },
     
     getCsvData(){
  load('csvData').then((val)=>{
-  console.log("here the hell")
     console.log("answer is ", val);
-    this.setCsvData(val)
+    if(!val)
+    return;
+    
+    this.setCsvData(val,true)
  }).catch((e)=>{
 console.log("error is ", e)
  })
-    console.log("store.csvdata is ----- +++++++", store.csvData);
     },
     setAuthToken(value?: string) {
       store.authToken = value

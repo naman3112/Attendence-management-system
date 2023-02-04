@@ -92,8 +92,9 @@ export function Button(props: ButtonProps) {
   function $viewStyle({ pressed }) {
     return [
       $viewPresets[preset],
-      $viewStyleOverride,
+
       !!pressed && [$pressedViewPresets[preset], $pressedViewStyleOverride],
+      $viewStyleOverride,
     ]
   }
   function $textStyle({ pressed }) {
