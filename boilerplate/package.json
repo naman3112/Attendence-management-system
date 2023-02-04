@@ -47,6 +47,7 @@
     "date-fns": "^2.29.2",
     "expo": "~46.0.17",
     "expo-application": "~4.2.2",
+    "expo-calendar": "~10.3.0",
     "expo-constants": "~13.2.3",
     "expo-device": "~4.3.0",
     "expo-document-picker": "~10.3.0",
