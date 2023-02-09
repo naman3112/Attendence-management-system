@@ -1,4 +1,5 @@
 import { Instance, SnapshotOut, types } from "mobx-state-tree"
+import { storeAnnotation } from "mobx/dist/internal"
 import { AsyncStorage } from "react-native"
 import { save, loadString , load, saveString} from "../utils/storage"
 
@@ -19,12 +20,13 @@ export const AuthenticationStoreModel = types
     authToken: types.maybe(types.string),
     authEmail: "",
     authPassword: "",
-   // csvData: types.array(CSVdata)
-    
+   csvData: types.array(types.frozen()),
+   dataDisp: types.array(types.frozen()),
+
   })
+  
   .views((store) => ({
     get isAuthenticated() {
-      console.log("store.csv data is -----", store.csvData)
       return store?.csvData && store?.csvData.length>0
     },
     get validationErrors() {
@@ -45,20 +47,28 @@ export const AuthenticationStoreModel = types
     },
   }))
   .actions((store) => ({
-     setCsvData (value, from=false){
-      
-      store.csvData = value;
-      console.log("csvdata string tupe", value, value.length)
+     setCsvData (value, from=false){ 
+      store.csvData = [...value];
+      store.dataDisp = [...value];
+   
       if(!from)
       saveString('csvData', JSON.stringify(value));
     },
-    
+    setChooseDate(value ){
+      store.chooseDate =value;
+    },
+
+
+     dataToBeDisplay (value, date ){
+    //    console.log("store Dis p", store.dataDisp);
+    this.setChooseDate(date);
+        store.dataDisp = [...value];
+     },
     getCsvData(){
+    
  load('csvData').then((val)=>{
-    console.log("answer is ", val);
     if(!val)
     return;
-    
     this.setCsvData(val,true)
  }).catch((e)=>{
 console.log("error is ", e)
