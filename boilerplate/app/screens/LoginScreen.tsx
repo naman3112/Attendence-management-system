@@ -44,23 +44,17 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
   const errors: typeof validationErrors = isSubmitted ? validationErrors : ({} as any)
 
   const uploadFolder = async()=>{
-    console.log("i am preessed ")
 	   const result = await DocumentPicker.getDocumentAsync({});
-      //alert(result?.uri);
     const s =   await FileSystem.readAsStringAsync(result?.uri)
-    //console.log("s is ",s) 
     const results = await readString(s,{
       header: true
-
     });
 		 setCsvData(results.data)
      setAuthToken(String(Date.now()))
-      console.log("end ", "-----", csvData, authToken);
 
   }
   useEffect(()=>{
  getCsvData();
-console.log("i am here shitty ---", csvData)
   },[])
   function login() {
 
@@ -96,7 +90,6 @@ console.log("i am here shitty ---", csvData)
   )
 
   useEffect(() => {
-    console.log("hey dude checkig the normal value of ", csvData)
     return () => {
       setAuthPassword("")
       setAuthEmail("")

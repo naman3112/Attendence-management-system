@@ -5,26 +5,29 @@ import { Card, Button } from "../../components"
 import { colors } from "../../theme"
 //import { colors, spacing, typography } from "../../theme"
 import { useStores } from "../../models"
+var options = {  year: 'numeric', month: 'long', day: 'numeric' };
+
 export function PersonList({inputText}) {
 
  
   const {
-    authenticationStore: { csvData },
+    authenticationStore: { csvData, dataDisp , dataToBeDisplay, chooseDate},
   } = useStores()
-  const [data, setData] = useState(csvData)
+
+  const [data, setData] = useState(csvData||dataDisp||{})
+ 
+
   useEffect(()=>{
-    console.log("input text --- ", inputText)
     if(!inputText){
-      setData(csvData)
-      console.log("sasa",csvData.length, inputText)
+      setData(dataDisp)
       return ;
     }
-      const newData = csvData.filter((item)=>{
+      const newData = dataDisp.filter((item)=>{
         let found =false;
       
               for (const key in item) {
                 
-                if(item?.[key].toLowerCase().includes(inputText.toLowerCase())){
+                if(item[key].toLowerCase().includes(inputText.toLowerCase())){
                     found = true;
                     break ;
                 }
@@ -48,8 +51,22 @@ const customButtonStyle: ViewStyle = {
     //textDecorationColor: colors.error,
     fontSize: 12,
   }
-  const Person = ({ item }) => {
-    const [status, setStatus] = useState("")
+ 
+  const Person = ({ item = {}, index }) => {
+    const [status, setStatus] = useState("NULL")
+
+console.log("item ----------------------", item)
+
+        const handleAttendence = (value)=>{
+
+    
+              if(item)
+         item[`${chooseDate}`] = value;
+             if(index ==6)
+                console.log("item is ", item)
+          setStatus(value);
+        } 
+
     return (
       <Card
         style={{
@@ -59,16 +76,16 @@ const customButtonStyle: ViewStyle = {
   
           shadowOpacity: 0.5,
         }}
-        heading={item.Name}
+        heading={item?.Name}
         ContentComponent={
           <>
             <View style={{  }}>
-              <Text>ID: {item.NewID} </Text>
-              <Text>Mobile No.: {item['Mobile no']}</Text>
+              <Text>ID: {item?.NewID} </Text>
+              <Text>Mobile No.: {item?.['Mobile no']}</Text>
             </View>
             <View style={{  }}>
-              <Text>ID: {item.NewID} </Text>
-              <Text>Mobile No.: {item['Mobile no']}</Text>
+              <Text>ID: {item?.NewID} </Text>
+              <Text>Mobile No.: {item?.['Mobile no']}</Text>
             </View>
             {/* <Text style={{ color: "black", fontWeight: 'bold'}}>
               Status:
@@ -82,7 +99,7 @@ const customButtonStyle: ViewStyle = {
             <Button
               style={[customButtonStyle, { backgroundColor: "green" }]}
               onPress={() => {
-                setStatus("Present")
+                handleAttendence("Present")
               }}
               textStyle={$customButtonTextStyle}
             >
@@ -92,7 +109,7 @@ const customButtonStyle: ViewStyle = {
               style={customButtonStyle}
               textStyle={$customButtonTextStyle}
               onPress={() => {
-                setStatus("Absent")
+                handleAttendence("Absent")
               }}
             >
               A
@@ -101,7 +118,7 @@ const customButtonStyle: ViewStyle = {
               style={[customButtonStyle, { backgroundColor: "grey" }]}
               textStyle={$customButtonTextStyle}
               onPress={() => {
-                setStatus("Other Reason")
+                handleAttendence("Other Reason")
               }}
             >
               O
@@ -121,7 +138,7 @@ const customButtonStyle: ViewStyle = {
     <FlatList
       data={data}
       renderItem={({ item, index }) => {
-        return <Person item={item} />
+        return <Person item={item} index={index} />
       }}
       keyboardShouldPersistTaps="always"
     />
