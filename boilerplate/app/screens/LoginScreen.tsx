@@ -11,6 +11,7 @@ import { readString } from 'react-native-csv';
 
 
 interface LoginScreenProps extends AppStackScreenProps<"Login"> {}
+var options = { year: "numeric", month: "long", day: "numeric" }
 
 export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_props) {
 
@@ -29,12 +30,14 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
       setCsvData, 
       csvData,
       authToken,
-      getCsvData
+      getCsvData,
+      getDataExport,
+      dataDisp,
+      dataToBeDisplay
     },
   } = useStores()
 
   useEffect(() => {
-    console.log('ste authoken ', authToken, "csv datssis", csvData)
     // Here is where you could fetch credientials from keychain or storage
     // and pre-fill the form fields.
     setAuthEmail("ignite@infinite.red")
@@ -55,6 +58,7 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
   }
   useEffect(()=>{
  getCsvData();
+ getDataExport();
   },[])
   function login() {
 

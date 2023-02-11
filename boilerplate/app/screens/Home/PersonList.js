@@ -5,41 +5,35 @@ import { Card, Button } from "../../components"
 import { colors } from "../../theme"
 //import { colors, spacing, typography } from "../../theme"
 import { useStores } from "../../models"
-var options = {  year: 'numeric', month: 'long', day: 'numeric' };
+var options = { year: "numeric", month: "long", day: "numeric" }
 
-export function PersonList({inputText}) {
-
- 
+export function PersonList({ inputText }) {
   const {
-    authenticationStore: { csvData, dataDisp , dataToBeDisplay, chooseDate},
+    authenticationStore: { updateDataToBeExport, dataDisp, dataToBeDisplay, chooseDate, selectedFields },
   } = useStores()
 
-  const [data, setData] = useState(csvData||dataDisp||{})
- 
+  const [data, setData] = useState(dataDisp)
 
-  useEffect(()=>{
-    if(!inputText){
+  useEffect(() => {
+    if (!inputText) {
       setData(dataDisp)
-      return ;
+      return
     }
-      const newData = dataDisp.filter((item)=>{
-        let found =false;
-      
-              for (const key in item) {
-                
-                if(item[key].toLowerCase().includes(inputText.toLowerCase())){
-                    found = true;
-                    break ;
-                }
-              
-             }
-      return found;
-      })
-      console.log("newData is -----------", newData.length)
-      setData(newData);
-  },[inputText])
+    const newData = dataDisp.filter((item) => {
+      let found = false
 
-const customButtonStyle: ViewStyle = {
+      for (const key in item) {
+        if (item[key].toLowerCase().includes(inputText.toLowerCase())) {
+          found = true
+          break
+        }
+      }
+      return found
+    })
+    setData(newData)
+  }, [inputText])
+
+  const customButtonStyle: ViewStyle = {
     backgroundColor: colors.error,
     minHeight: 10,
     paddingVertical: 4,
@@ -51,21 +45,22 @@ const customButtonStyle: ViewStyle = {
     //textDecorationColor: colors.error,
     fontSize: 12,
   }
- 
+
   const Person = ({ item = {}, index }) => {
-    const [status, setStatus] = useState("NULL")
+    const [status, setStatus] = useState(item[`${chooseDate}`])
+if(index ==0 ||index ==1){
 
-console.log("item ----------------------", item)
-
-        const handleAttendence = (value)=>{
-
-    
-              if(item)
-         item[`${chooseDate}`] = value;
-             if(index ==6)
-                console.log("item is ", item)
-          setStatus(value);
-        } 
+}
+    const handleAttendence = (value) => {
+      console.log("hre")
+      if (item) item[`${chooseDate}`] = value
+      setStatus(value)
+      let dateObject = {...item};
+      dateObject[`${chooseDate}`] = value;
+      
+      updateDataToBeExport(dateObject)
+     
+    }
 
     return (
       <Card
@@ -73,20 +68,22 @@ console.log("item ----------------------", item)
           shadowRadius: 5,
           marginHorizontal: 8,
           marginVertical: 4,
-  
+
           shadowOpacity: 0.5,
         }}
         heading={item?.Name}
         ContentComponent={
           <>
-            <View style={{  }}>
-              <Text>ID: {item?.NewID} </Text>
-              <Text>Mobile No.: {item?.['Mobile no']}</Text>
-            </View>
-            <View style={{  }}>
-              <Text>ID: {item?.NewID} </Text>
-              <Text>Mobile No.: {item?.['Mobile no']}</Text>
-            </View>
+            {selectedFields.map((field) => {
+              return (
+                <View key={item?.field} style={{}}>
+                  <Text>
+                    {field}: {item[`${field}`]}{" "}
+                  </Text>
+                </View>
+              )
+            })}
+
             {/* <Text style={{ color: "black", fontWeight: 'bold'}}>
               Status:
               <Text style={{color: status=='Present'?'green': status=='Absent'?'red':'orange' }}>  {status}</Text>
@@ -125,11 +122,19 @@ console.log("item ----------------------", item)
             </Button>
           </View>
         }
-        footer={   <Text style={{ color: "black", fontWeight: 'bold'}}>
-        Status:
-        <Text style={{color: status=='Present'?'green': status=='Absent'?'red':'orange' }}>  {status}</Text>
-       
-      </Text>}
+        footer={
+          <Text style={{ color: "black", fontWeight: "bold" }}>
+            Status:
+            <Text
+              style={{
+                color: status == "Present" ? "green" : status == "Absent" ? "red" : "orange",
+              }}
+            >
+              {" "}
+              {status}
+            </Text>
+          </Text>
+        }
       />
     )
   }
