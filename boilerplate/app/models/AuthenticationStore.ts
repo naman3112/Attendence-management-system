@@ -1,17 +1,18 @@
 import { Instance, SnapshotOut, types } from "mobx-state-tree"
 import { storeAnnotation } from "mobx/dist/internal"
 import { AsyncStorage } from "react-native"
-import { save, loadString , load, saveString} from "../utils/storage"
+import { save, loadString, load, saveString } from "../utils/storage"
+var options = {  year: 'numeric', month: 'long', day: 'numeric' };
 
-const initializeFromAsyncStorage = async (obj)=> {
-  const result = await AsyncStorage.getItem('csvData')
+const initializeFromAsyncStorage = async (obj) => {
+  const result = await AsyncStorage.getItem("csvData")
   if (result !== null) {
-     obj = JSON.parse(result)
-     return obj
+    obj = JSON.parse(result)
+    return obj
   }
 }
 export interface CsvData {
-any;
+  any
 }
 
 export const AuthenticationStoreModel = types
@@ -20,14 +21,14 @@ export const AuthenticationStoreModel = types
     authToken: types.maybe(types.string),
     authEmail: "",
     authPassword: "",
-   csvData: types.array(types.frozen()),
-   dataDisp: types.array(types.frozen()),
-
+    csvData: types.array(types.frozen()),
+    dataDisp: types.array(types.frozen()),
+    selectedFields: types.array(types.frozen()),
   })
-  
+
   .views((store) => ({
     get isAuthenticated() {
-      return store?.csvData && store?.csvData.length>0
+      return store?.csvData && store?.csvData.length > 0
     },
     get validationErrors() {
       return {
@@ -47,32 +48,96 @@ export const AuthenticationStoreModel = types
     },
   }))
   .actions((store) => ({
-     setCsvData (value, from=false){ 
-      store.csvData = [...value];
-      store.dataDisp = [...value];
-   
-      if(!from)
-      saveString('csvData', JSON.stringify(value));
+    setCsvData(value, from = false) {
+      store.csvData = [...value]
+      
+
+      if (!from) {
+        saveString("csvData", JSON.stringify(value))
+      }
     },
-    setChooseDate(value ){
-      store.chooseDate =value;
+    setExportedDataToStorage(val){
+      console.log("val is", val[0]);
+      saveString("exportedData", JSON.stringify(val));
+    },
+    setChooseDate(value) {
+      store.chooseDate = value
+    },
+    setSelectedFields(value, saveToStorage = false) {
+      store.selectedFields = [...value]
+      console.log("store.selected field value", store.selectedFields)
+        if(saveToStorage){
+          saveString("selectedFields", JSON.stringify(value));
+        }
     },
 
-
-     dataToBeDisplay (value, date ){
-    //    console.log("store Dis p", store.dataDisp);
-    this.setChooseDate(date);
-        store.dataDisp = [...value];
-     },
-    getCsvData(){
+    dataToBeDisplay(value1, date='') {
+      console.log("i am set in the new data DISP ")
     
- load('csvData').then((val)=>{
-    if(!val)
-    return;
-    this.setCsvData(val,true)
- }).catch((e)=>{
-console.log("error is ", e)
- })
+      if (date) this.setChooseDate(date)
+      store.dataDisp = [...value1]
+    console.log("store.dataDisp", value1[0])
+      this.setExportedDataToStorage(value1);
+    },
+    updateDataToBeExport(val){
+      const newUpdatedDataIndex = store.csvData.findIndex((obj)=>{
+        let found = true;
+              for(let key  in obj){
+                 if(obj[key]!=val[key]){
+                  found=false;
+                  
+                  break;
+                 }
+                 
+              }
+            
+              return found;
+      })
+      console.log("newUpdated Index")
+      
+      let newUpdatedData = [...store.dataDisp];
+      newUpdatedData[newUpdatedDataIndex] = val;
+
+      //console.log("Updated item in the array is ",newUpdatedData[newUpdatedDataIndex], newUpdatedData.length)
+      console.log(newUpdatedData[0], "check ----------",newUpdatedDataIndex)
+      this.dataToBeDisplay(newUpdatedData,'');
+      //this.setExportedDataToStorage(newUpdatedData)
+    },
+
+
+    getSelectedFields(){
+      load("selectedFields").then((val)=>{
+        if(!val){
+          return ;
+        }
+        this.setSelectedFields(val);
+      }).catch((e)=>{
+        console.log("error in selected field", e);
+      })
+    },
+    getCsvData() {
+      const dateString = new Date().toLocaleDateString("en-US", options)
+
+      load("csvData")
+        .then((val) => {
+          if (!val) return
+          this.setCsvData(val, true)
+        })
+        .catch((e) => {
+          console.log("error is ", e)
+        })
+        this.setChooseDate(dateString)
+    },
+    getDataExport (){
+      load("exportedData").then((val)=>{
+          if(!val){
+            return ;
+          }
+          console.log("Set data here ---")
+          this.dataToBeDisplay(val);
+      }).catch((e)=>{
+        console.log("not able to set Exported data ", e);
+      })
     },
     setAuthToken(value?: string) {
       store.authToken = value
@@ -87,6 +152,12 @@ console.log("error is ", e)
       store.authToken = undefined
       store.authEmail = ""
       store.authPassword = ""
+      this.setSelectedFields([], true);
+      this.setCsvData([]);
+      this.setExportedDataToStorage([])
+      store.csvData = [];
+      store.dataDisp=[];
+      store.selectedFields = [];
     },
   }))
 //   .preProcessSnapshot((snapshot) => {

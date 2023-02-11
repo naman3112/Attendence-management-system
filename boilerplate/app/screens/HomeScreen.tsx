@@ -2,13 +2,12 @@ import { observer } from "mobx-react-lite"
 import React, { FC, useEffect, useState } from "react"
 import { Image, ImageStyle, TextStyle, View,  useWindowDimensions, 
   Platform,
-  Pressable, ViewStyle} from "react-native"
+  Pressable, ViewStyle, Alert} from "react-native"
 import {
   Button, Icon, // @demo remove-current-line
   Text,
   TextField
 } from "../components"
-import { isRTL } from "../i18n"
 import { useStores } from "../models" // @demo remove-current-line
 import { AppStackScreenProps } from "../navigators" // @demo remove-current-line
 import { colors, spacing ,typography} from "../theme"
@@ -45,11 +44,12 @@ export const HomeScreen: FC<HomeScreenProps> = observer(function HomeScreen(
   // @demo remove-block-start
   const { navigation } = _props
   const {
-    authenticationStore: { logout, csvData , dataToBeDisplay, setChooseDate,dataDisp},
+    authenticationStore: { logout, csvData , getDataExport,dataToBeDisplay, setChooseDate,dataDisp},
   } = useStores()
-  useEffect(() => {
-    
-  }, [])
+  useEffect(()=>{
+    getDataExport();
+  },[])
+
   function goNext() {
     navigation.navigate("HomeScreen")
   }
@@ -60,7 +60,7 @@ export const HomeScreen: FC<HomeScreenProps> = observer(function HomeScreen(
    
     return (
       <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: "center", 
-      marginHorizontal: 10,
+      marginLeft: 6,
      
       }}>
      
@@ -95,16 +95,36 @@ export const HomeScreen: FC<HomeScreenProps> = observer(function HomeScreen(
     )
 
   }
-
+  const showAlert = () =>
+  Alert.alert(
+    'Are you sure you want to log out?',
+    'Log out would delete all your present data related to attendence and you have to start again by uploading attendence file',
+    [
+      {
+        text: `Don't delete`,
+        onPress: () => {return },
+        style: 'cancel',
+      },
+      {
+        text: 'Yes Delete it',
+        onPress: () => logout(),
+        style: 'destructive',
+      },
+    ],
+    {
+      cancelable: true,
+     
+    },
+  );
   
  
   useHeader({
-    //rightTx: "common.logOut",
+    rightTx: "common.logOut",
 
-   // onRightPress: logout,
+   onRightPress: showAlert,
     LeftActionComponent: search(),
     //<Icon key={1} icon="ladybug" color={colors.palette.neutral100} size={100} />
-    RightActionComponent: <Text size="sm">Saving...</Text>
+    
     
     // LeftActionComponent= {
     //   <Icon icon={"search"}/>
@@ -116,15 +136,16 @@ export const HomeScreen: FC<HomeScreenProps> = observer(function HomeScreen(
   const $bottomContainerInsets = useSafeAreaInsetsStyle(["bottom"])
   const [date, setDate] = useState(new Date());
 
-useEffect(()=>{
+ useEffect(()=>{
 
 
   const dateString = new Date().toLocaleDateString("en-US", options)
-  const newUpdateDateData = csvData.map((item)=>{
-      item[`${dateString}`]  = null;
-        return item;
-    })
-dataToBeDisplay(newUpdateDateData, dateString);
+  // const newUpdateDateData = csvData.map((item)=>{
+  //     item[`${dateString}`]  = null;
+  //       return item;
+  //   })
+  setChooseDate(dateString);
+// dataToBeDisplay(newUpdateDateData, dateString);
 
 },[])
   
@@ -157,15 +178,15 @@ const saveFile = async (data) => {
   }};
   const onChange = (event, selectedDate) => {
     const currentDate = selectedDate;
-    console.log("Current date is ", currentDate)
     setDate(currentDate);
 
     const dateString = currentDate.toLocaleDateString("en-US", options)
-    const newUpdateDateData = csvData.map((item)=>{
-        item[`${dateString}`]  = null;
-          return item;
-      })
-dataToBeDisplay(newUpdateDateData, dateString);
+    // const newUpdateDateData = csvData.map((item)=>{
+    //     item[`${dateString}`]  = null;
+    //       return item;
+    //   })
+      setChooseDate(dateString)
+//dataToBeDisplay(newUpdateDateData, dateString);
   };
   
 
@@ -179,14 +200,9 @@ dataToBeDisplay(newUpdateDateData, dateString);
   };
 
   const showDatepicker = () => {
-    console.log("date is ", date)
-    console.log("date curre", new Date());
     showMode('date');
   };
 
-  const showTimepicker = () => {
-    showMode('time');
-  };
 
   return (
     <View style={$container}>
@@ -194,12 +210,29 @@ dataToBeDisplay(newUpdateDateData, dateString);
       <Button
          onPress={showDatepicker}
           preset="filled"
-         style={[$customButtonStyle,{width: "50%",}]}
+         style={[$customButtonStyle,{width: "40%", marginLeft: 8, marginBottom: 4}]}
          //textStyle={$customButtonTextStyle}
-         > Choose Date</Button>
+         >Choose Date</Button>
       <Text>{date.toLocaleDateString("en-US", options)}</Text>
       </View>
-
+      <View style={{ flexDirection: 'row'}}>
+      <Button
+         onPress={()=>{
+          navigation.navigate("Welcome")
+         }}
+          preset="filled"
+         style={[$customButtonStyle,{width: "40%", marginLeft: 8, marginBottom: 4}]}
+         //textStyle={$customButtonTextStyle}
+         >Go to fields</Button>
+           {/* <Button
+         onPress={showDatepicker}
+         disabled={true}
+          preset="filled"
+         style={[$customButtonStyle,{width: "40%", marginLeft: 8, marginBottom: 4}]}
+         //textStyle={$customButtonTextStyle}
+         >Filter</Button> */}
+      </View>
+    
     <PersonList
     date={date}
     inputText={inputText}
@@ -208,7 +241,7 @@ dataToBeDisplay(newUpdateDateData, dateString);
 <Button
          onPress={async()=>{
           const results = jsonToCSV(dataDisp);
-          //console.log("Resutls are ", results);
+         
           try{
             await saveFile(results)
           }catch(e){
@@ -217,52 +250,16 @@ dataToBeDisplay(newUpdateDateData, dateString);
           
          }}
           preset="filled"
-         style={{width: "100%",}}
-         //textStyle={$customButtonTextStyle}
-         > Export </Button>
+         style={{width: "100%", backgroundColor: 'darkred'}}
+         textStyle={{color: 'white', fontSize:  20, fontWeight: 'bold'}}
+         > Share Via What'sApp </Button>
 </View>
     </View>
   )
 })
 
 const $container: ViewStyle = {
-  paddingTop: 16, 
+  paddingVertical: 4, 
   flex: 1,
   backgroundColor: colors.background,
-}
-const $topContainer: ViewStyle = {
-  flexShrink: 1,
-  flexGrow: 1,
-  flexBasis: "57%",
-  justifyContent: "center",
-  paddingHorizontal: spacing.large,
-}
-
-const $bottomContainer: ViewStyle = {
-  flexShrink: 1,
-  flexGrow: 0,
-  flexBasis: "43%",
-  backgroundColor: colors.palette.neutral100,
-  borderTopLeftRadius: 16,
-  borderTopRightRadius: 16,
-  paddingHorizontal: spacing.large,
-  justifyContent: "space-around",
-}
-const $welcomeLogo: ImageStyle = {
-  height: 88,
-  width: "100%",
-  marginBottom: spacing.huge,
-}
-
-const $welcomeFace: ImageStyle = {
-  height: 169,
-  width: 269,
-  position: "absolute",
-  bottom: -47,
-  right: -80,
-  transform: [{ scaleX: isRTL ? -1 : 1 }],
-}
-
-const $welcomeHeading: TextStyle = {
-  marginBottom: spacing.medium,
 }
