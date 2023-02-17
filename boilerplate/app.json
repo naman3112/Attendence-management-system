@@ -7,9 +7,9 @@
     "scheme": "helloworld",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/app-icon-all.png",
+    "icon": "./assets/images/AVAMS.png",
     "splash": {
-      "image": "./assets/images/splash-logo-all.png",
+      "image": "./assets/images/AVAMS.png",
       "resizeMode": "contain",
       "backgroundColor": "#191015"
     },
@@ -19,14 +19,14 @@
     "jsEngine": "hermes",
     "assetBundlePatterns": ["**/*"],
     "android": {
-      "icon": "./assets/images/app-icon-android-legacy.png",
+      "icon": "./assets/images/AVAMS.png",
       "package": "com.helloworld",
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/app-icon-android-adaptive-foreground.png",
-        "backgroundImage": "./assets/images/app-icon-android-adaptive-background.png"
+        "foregroundImage": "./assets/images/AVAMS.png",
+        "backgroundImage": "./assets/images/AVAMS.png"
       },
       "splash": {
-        "image": "./assets/images/splash-logo-android-universal.png",
+        "image": "./assets/images/AVAMS.png",
         "resizeMode": "contain",
         "backgroundColor": "#191015"
       }
