@@ -1,3 +1,5 @@
+import { observer } from "mobx-react-lite"
+
 import React, { ReactNode, useEffect, useState } from "react"
 import { TextStyle, View, ViewStyle, FlatList, Text } from "react-native"
 import { Card, Button } from "../../components"
@@ -7,9 +9,14 @@ import { colors } from "../../theme"
 import { useStores } from "../../models"
 var options = { year: "numeric", month: "long", day: "numeric" }
 
-export function PersonList({ inputText }) {
+const PersonList = observer(({ inputText }) => {
   const {
-    authenticationStore: { updateDataToBeExport, dataDisp, dataToBeDisplay, chooseDate, selectedFields },
+    authenticationStore: {
+      updateDataToBeExport,
+      dataDisp,
+      chooseDate,
+      selectedFields,
+    },
   } = useStores()
 
   const [data, setData] = useState(dataDisp)
@@ -37,6 +44,8 @@ export function PersonList({ inputText }) {
     backgroundColor: colors.error,
     minHeight: 10,
     paddingVertical: 4,
+    width: 100,
+    marginBottom: 4,
   }
   const $customButtonTextStyle: TextStyle = {
     color: "white",
@@ -48,22 +57,20 @@ export function PersonList({ inputText }) {
 
   const Person = ({ item = {}, index }) => {
     const [status, setStatus] = useState(item[`${chooseDate}`])
-if(index ==0 ||index ==1){
-
-}
+    if (index == 0 || index == 1) {
+    }
     const handleAttendence = (value) => {
-      console.log("hre")
       if (item) item[`${chooseDate}`] = value
       setStatus(value)
-      let dateObject = {...item};
-      dateObject[`${chooseDate}`] = value;
-      
+      let dateObject = { ...item }
+      dateObject[`${chooseDate}`] = value
+
       updateDataToBeExport(dateObject)
-     
     }
 
     return (
       <Card
+        key={item?.[selectedFields?.[0]]}
         style={{
           shadowRadius: 5,
           marginHorizontal: 8,
@@ -71,10 +78,13 @@ if(index ==0 ||index ==1){
 
           shadowOpacity: 0.5,
         }}
-        heading={item?.Name}
+        heading={`${selectedFields?.[0]} :- ${item?.[selectedFields?.[0]]}`}
         ContentComponent={
           <>
-            {selectedFields.map((field) => {
+            {selectedFields.map((field,index) => {
+              if(index==0){
+                return 
+              }
               return (
                 <View key={item?.field} style={{}}>
                   <Text>
@@ -83,16 +93,10 @@ if(index ==0 ||index ==1){
                 </View>
               )
             })}
-
-            {/* <Text style={{ color: "black", fontWeight: 'bold'}}>
-              Status:
-              <Text style={{color: status=='Present'?'green': status=='Absent'?'red':'orange' }}>  {status}</Text>
-             
-            </Text> */}
           </>
         }
         RightComponent={
-          <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "center" }}>
+          <View style={{ alignItems: "center", justifyContent: "center" }}>
             <Button
               style={[customButtonStyle, { backgroundColor: "green" }]}
               onPress={() => {
@@ -100,7 +104,7 @@ if(index ==0 ||index ==1){
               }}
               textStyle={$customButtonTextStyle}
             >
-              P
+              Present
             </Button>
             <Button
               style={customButtonStyle}
@@ -109,16 +113,25 @@ if(index ==0 ||index ==1){
                 handleAttendence("Absent")
               }}
             >
-              A
+              Absent
             </Button>
             <Button
-              style={[customButtonStyle, { backgroundColor: "grey" }]}
+              style={[customButtonStyle, { backgroundColor: "blue" }]}
               textStyle={$customButtonTextStyle}
               onPress={() => {
                 handleAttendence("Other Reason")
               }}
             >
-              O
+              Other
+            </Button>
+            <Button
+              style={[customButtonStyle, { backgroundColor: "grey" }]}
+              textStyle={$customButtonTextStyle}
+              onPress={() => {
+                handleAttendence("")
+              }}
+            >
+              Clear
             </Button>
           </View>
         }
@@ -127,7 +140,14 @@ if(index ==0 ||index ==1){
             Status:
             <Text
               style={{
-                color: status == "Present" ? "green" : status == "Absent" ? "red" : "orange",
+                color:
+                  status?.toLowerCase() == "present"
+                    ? "green"
+                    : status?.toLowerCase() == "absent"
+                    ? "red"
+                    : status?.toLowerCase() == "other reason"
+                    ? "blue"
+                    : "orange",
               }}
             >
               {" "}
@@ -148,6 +168,7 @@ if(index ==0 ||index ==1){
       keyboardShouldPersistTaps="always"
     />
   )
-}
+})
 
 // @demo remove-file
+export default PersonList

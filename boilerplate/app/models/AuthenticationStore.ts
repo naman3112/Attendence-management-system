@@ -108,6 +108,7 @@ export const AuthenticationStoreModel = types
     getSelectedFields(){
       load("selectedFields").then((val)=>{
         if(!val){
+        //  this.setSelectedFields([]);
           return ;
         }
         this.setSelectedFields(val);
@@ -117,7 +118,7 @@ export const AuthenticationStoreModel = types
     },
     getCsvData() {
       const dateString = new Date().toLocaleDateString("en-US", options)
-
+    
       load("csvData")
         .then((val) => {
           if (!val) return
@@ -149,6 +150,7 @@ export const AuthenticationStoreModel = types
       store.authPassword = value.replace(/ /g, "")
     },
     logout() {
+
       store.authToken = undefined
       store.authEmail = ""
       store.authPassword = ""
