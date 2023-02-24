@@ -13,15 +13,13 @@ import { AppStackScreenProps } from "../navigators" // @demo remove-current-line
 import { colors, spacing ,typography} from "../theme"
 import { useHeader } from "../utils/useHeader" // @demo remove-current-line
 import { useSafeAreaInsetsStyle } from "../utils/useSafeAreaInsetsStyle"
-import {PersonList} from "./Home/PersonList"
+import PersonList from "./Home/PersonList"
 import { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
 import { jsonToCSV } from 'react-native-csv'
 import * as FileSystem from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
 
 
-const welcomeLogo = require("../../assets/images/logo.png")
-const welcomeFace = require("../../assets/images/welcome-face.png")
 var options = {  year: 'numeric', month: 'long', day: 'numeric' };
 
 interface HomeScreenProps extends AppStackScreenProps<"Welcome"> { } // @demo remove-current-line
@@ -44,7 +42,7 @@ export const HomeScreen: FC<HomeScreenProps> = observer(function HomeScreen(
   // @demo remove-block-start
   const { navigation } = _props
   const {
-    authenticationStore: { logout, csvData , getDataExport,dataToBeDisplay, setChooseDate,dataDisp},
+    authenticationStore: { logout, csvData , getDataExport,dataToBeDisplay, setChooseDate,dataDisp,chooseDate},
   } = useStores()
   useEffect(()=>{
     getDataExport();
@@ -152,11 +150,9 @@ export const HomeScreen: FC<HomeScreenProps> = observer(function HomeScreen(
 const saveFile = async (data) => {
 
   let directoryUri = FileSystem.documentDirectory;
-  console.log("docu", directoryUri)
-  let fileUri =directoryUri + "workUpload.csv";
-  console.log("file uri ", fileUri)
+  let fileUri =directoryUri + `Attendence-${chooseDate}.csv`;
+  
   await FileSystem.writeAsStringAsync(fileUri, data, { encoding: FileSystem.EncodingType.UTF8 });
-  console.log("jei")
   shareFile(fileUri);
   return fileUri;
   };
@@ -168,7 +164,6 @@ const saveFile = async (data) => {
   if (canShare) {
     try{
       const res = await Sharing.shareAsync(fileUri);
-      console.log('shareAsync', res);
       return true;
     } catch {
       return false;
@@ -252,7 +247,7 @@ const saveFile = async (data) => {
           preset="filled"
          style={{width: "100%", backgroundColor: 'darkred'}}
          textStyle={{color: 'white', fontSize:  20, fontWeight: 'bold'}}
-         > Share Via What'sApp </Button>
+         > Share Attendence </Button>
 </View>
     </View>
   )

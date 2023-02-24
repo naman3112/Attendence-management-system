@@ -47,13 +47,23 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
   const errors: typeof validationErrors = isSubmitted ? validationErrors : ({} as any)
 
   const uploadFolder = async()=>{
-	   const result = await DocumentPicker.getDocumentAsync({});
-    const s =   await FileSystem.readAsStringAsync(result?.uri)
-    const results = await readString(s,{
-      header: true
-    });
-		 setCsvData(results.data)
-     setAuthToken(String(Date.now()))
+       try{
+        const result = await DocumentPicker.getDocumentAsync({type: ["text/comma-separated-values"]});
+                if(result?.uri){
+                  const s =   await FileSystem.readAsStringAsync(result?.uri)
+                  const results = await readString(s,{
+                    header: true
+                  });
+                  setCsvData(results.data)
+                  setAuthToken(String(Date.now()))
+                }
+      
+   
+       }
+       catch(e){
+        console.log("error is ", e)
+       }
+   
 
   }
   useEffect(()=>{
@@ -107,25 +117,7 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
       contentContainerStyle={$screenContentContainer}
       safeAreaEdges={["top", "bottom"]}
     >
-      <Text testID="login-heading"  text="Attendence Management System" preset="heading" style={$signIn} />
-
-
-      {/* <TextField
-        value={authEmail}
-        onChangeText={setAuthEmail}
-        containerStyle={$textField}
-        autoCapitalize="none"
-        autoComplete="email"
-        autoCorrect={false}
-        keyboardType="email-address"
-        labelTx="loginScreen.emailFieldLabel"
-        placeholderTx="loginScreen.emailFieldPlaceholder"
-        helper={errors?.authEmail}
-        status={errors?.authEmail ? "error" : undefined}
-        onSubmitEditing={() => authPasswordInput.current?.focus()}
-      /> */}
-
-     
+      <Text testID="login-heading"  text="Attendence Management System" preset="heading" style={$signIn} />     
 
       <Button
         testID="login-button"
@@ -145,19 +137,6 @@ const $screenContentContainer: ViewStyle = {
 
 const $signIn: TextStyle = {
   marginBottom: spacing.small,
-}
-
-const $enterDetails: TextStyle = {
-  marginBottom: spacing.large,
-}
-
-const $hint: TextStyle = {
-  color: colors.tint,
-  marginBottom: spacing.medium,
-}
-
-const $textField: ViewStyle = {
-  marginBottom: spacing.large,
 }
 
 const $tapButton: ViewStyle = {
