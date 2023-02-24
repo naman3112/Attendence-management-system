@@ -12,6 +12,7 @@ import { useHeader } from "../utils/useHeader" // @demo remove-current-line
 import { useSafeAreaInsetsStyle } from "../utils/useSafeAreaInsetsStyle"
 import { Header } from "../components"
 import { Toggle, ToggleProps } from "../components"
+var options = {  year: 'numeric', month: 'long', day: 'numeric' };
 
 
 interface WelcomeScreenProps extends AppStackScreenProps<"Welcome"> { } // @demo remove-current-line
@@ -44,20 +45,54 @@ export const WelcomeScreen: FC<WelcomeScreenProps> = observer(function WelcomeSc
   const selectedFieldsCheckBox = useRef([]);
   const { navigation } = _props
   const {
-    authenticationStore: { logout, csvData, dataToBeDisplay, dataDisp, setSelectedFields, getSelectedFields, selectedFields },
+    authenticationStore: { logout, csvData, dataToBeDisplay, setChooseDate, dataDisp, setSelectedFields, getSelectedFields, selectedFields },
   } = useStores()
 
   useEffect(() => {
     getSelectedFields();
     if (!dataDisp || dataDisp?.length == 0) {
       console.log("loginscreen ", dataDisp)
-      dataToBeDisplay(csvData);
+      const date = new Date();
+      let dateString = date.toLocaleDateString("en-US", options)
+      setChooseDate(dateString);
+      let arr = csvData.map((item)=>{
+
+        if(item?.[`${dateString}`] && item?.[`${dateString}`]!="NOT MARKED"){
+          return item;
+        }else{
+          let newItem = {...item};
+          newItem[`${dateString}`] = "NOT MARKED";
+          return newItem;
+        }
+    
+      })
+      dataToBeDisplay(arr);
     }
     if (Array.isArray(selectedFields) && selectedFields.length > 0) {
       navigation.navigate("Home")
     }
 
   }, [])
+  const showAlertForOverSelection = () =>{
+    return (
+      Alert.alert(
+        'Please select only 5 fields to proceed further',
+        '',
+        [
+          {
+            text: `Okay`,
+            onPress: () => { return },
+            style: 'cancel',
+          },
+        
+        ],
+        {
+          cancelable: true,
+  
+        },
+      )
+    )
+  }
   const showAlertForNonSelection = () =>{
     return (
       Alert.alert(
@@ -82,6 +117,10 @@ export const WelcomeScreen: FC<WelcomeScreenProps> = observer(function WelcomeSc
     if (Array.isArray(selectedFieldsCheckBox.current) && selectedFieldsCheckBox.current.length === 0) {
       showAlertForNonSelection()
     }else{
+      if(Array.isArray(selectedFieldsCheckBox.current) && selectedFieldsCheckBox.current.length > 5){
+        showAlertForOverSelection();
+        return ;
+      }
       const val = selectedFieldsCheckBox.current
       setSelectedFields(val, true);
       navigation.navigate("Home")
@@ -118,7 +157,6 @@ export const WelcomeScreen: FC<WelcomeScreenProps> = observer(function WelcomeSc
   const $bottomContainerInsets = useSafeAreaInsetsStyle(["bottom"])
   const handleCheckBox = (value, operation = '+') => {
     if (operation == '+') {
-     console.log("fuck that shit ", value==selectedFieldsCheckBox.current?.[0])
       if(selectedFieldsCheckBox.current.length==0)
         setIsPrimary('* Primary')
      

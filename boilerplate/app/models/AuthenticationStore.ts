@@ -136,7 +136,7 @@ console.log("vali is ", val)
           }
           const date = new Date();
           let dateString = date.toLocaleDateString("en-US", options)
-          setChooseDate(dateString);
+          this.setChooseDate(dateString);
           let arr = val.map((item)=>{
 
             if(item?.[`${dateString}`] && item?.[`${dateString}`]!="NOT MARKED"){

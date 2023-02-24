@@ -48,7 +48,7 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
 
   const uploadFolder = async()=>{
        try{
-        const result = await DocumentPicker.getDocumentAsync({type: ["text/comma-separated-values"]});
+        const result = await DocumentPicker.getDocumentAsync({type: ["text/comma-separated-values", "text/csv"]});
                 if(result?.uri){
                   const s =   await FileSystem.readAsStringAsync(result?.uri)
                   const results = await readString(s,{
