@@ -64,7 +64,7 @@ const PersonList = observer(({ inputText }) => {
       setStatus(value)
       let dateObject = { ...item }
       dateObject[`${chooseDate}`] = value
-
+      
       updateDataToBeExport(dateObject)
     }
 
@@ -87,8 +87,8 @@ const PersonList = observer(({ inputText }) => {
               }
               return (
                 <View key={item?.field} style={{}}>
-                  <Text>
-                    {field}: {item[`${field}`]}{" "}
+                  <Text ellipsizeMode="tail" numberOfLines={1}>
+                    {field}: {item[`${field}`]}
                   </Text>
                 </View>
               )

@@ -72,7 +72,7 @@ export const AuthenticationStoreModel = types
     },
 
     dataToBeDisplay(value1, date='') {
-      console.log("i am set in the new data DISP ")
+      console.log("i am set in the new data DISP ", value1)
     
       if (date) this.setChooseDate(date)
       store.dataDisp = [...value1]
@@ -80,6 +80,7 @@ export const AuthenticationStoreModel = types
       this.setExportedDataToStorage(value1);
     },
     updateDataToBeExport(val){
+console.log("vali is ", val)
       const newUpdatedDataIndex = store.csvData.findIndex((obj)=>{
         let found = true;
               for(let key  in obj){
@@ -93,7 +94,6 @@ export const AuthenticationStoreModel = types
             
               return found;
       })
-      console.log("newUpdated Index")
       
       let newUpdatedData = [...store.dataDisp];
       newUpdatedData[newUpdatedDataIndex] = val;
@@ -134,8 +134,22 @@ export const AuthenticationStoreModel = types
           if(!val){
             return ;
           }
+          const date = new Date();
+          let dateString = date.toLocaleDateString("en-US", options)
+          setChooseDate(dateString);
+          let arr = val.map((item)=>{
+
+            if(item?.[`${dateString}`] && item?.[`${dateString}`]!="NOT MARKED"){
+              return item;
+            }else{
+              let newItem = {...item};
+              newItem[`${dateString}`] = "NOT MARKED";
+              return newItem;
+            }
+        
+          })
           console.log("Set data here ---")
-          this.dataToBeDisplay(val);
+          this.dataToBeDisplay(arr);
       }).catch((e)=>{
         console.log("not able to set Exported data ", e);
       })
